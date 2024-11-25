@@ -7,6 +7,7 @@ use crate::{
 };
 
 use dioxus::prelude::*;
+use models::GetEnvsModel;
 
 mod main_state;
 #[cfg(feature = "server")]
@@ -51,7 +52,7 @@ fn App() -> Element {
     match &*data {
         Some(data) => match data {
             Ok(result) => {
-                main_state.write().set_environments(result.clone());
+                main_state.write().set_environments(result);
                 return rsx! {
                     ActiveApp {}
                 };
@@ -72,9 +73,17 @@ fn App() -> Element {
 
 #[component]
 fn ActiveApp() -> Element {
-    //    let main_state = consume_context::<Signal<MainState>>();
+    let main_state = consume_context::<Signal<MainState>>();
 
-    //   let main_state_value = main_state.read();
+    let main_state_read_access = main_state.read();
+
+    if let Some(ssh_cert_prompt) = main_state_read_access.prompt_ssh_cert {
+        if ssh_cert_prompt {
+            return rsx! {
+                EnterCert {}
+            };
+        }
+    }
 
     rsx! {
         div { id: "top-panel", EnvsSelector {} }
@@ -86,12 +95,11 @@ fn ActiveApp() -> Element {
 }
 
 #[server]
-pub async fn get_envs() -> Result<Vec<String>, ServerFnError> {
-    let result = crate::server::APP_CTX
-        .settings_reader
-        .get_settings()
-        .await
-        .get_envs();
+pub async fn get_envs() -> Result<GetEnvsModel, ServerFnError> {
+    let result = crate::server::APP_CTX.settings_reader.get_settings().await;
 
-    Ok(result)
+    Ok(GetEnvsModel {
+        envs: result.envs.keys().cloned().collect(),
+        ssh_cert_prompt: result.ssh_cert_prompt,
+    })
 }

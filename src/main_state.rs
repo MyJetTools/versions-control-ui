@@ -2,12 +2,12 @@ use std::rc::Rc;
 
 use dioxus_utils::DataState;
 
-use crate::models::AppVersionsHttpModel;
+use crate::models::{AppVersionsHttpModel, GetEnvsModel};
 
 pub struct MainState {
     pub selected_env: Rc<String>,
     pub envs: Option<Vec<Rc<String>>>,
-
+    pub prompt_ssh_cert: Option<bool>,
     pub data: DataState<AppVersionsHttpModel>,
 }
 
@@ -18,6 +18,7 @@ impl MainState {
             selected_env: Rc::new(selected_env),
             envs: None,
             data: DataState::new(),
+            prompt_ssh_cert: None,
         }
     }
 
@@ -25,8 +26,12 @@ impl MainState {
         self.envs.is_some()
     }
 
-    pub fn set_environments(&mut self, envs: Vec<String>) {
-        let envs: Vec<Rc<String>> = envs.into_iter().map(Rc::new).collect();
+    pub fn set_environments(&mut self, model: &GetEnvsModel) {
+        let envs: Vec<Rc<String>> = model
+            .envs
+            .iter()
+            .map(|itm| Rc::new(itm.to_string()))
+            .collect();
 
         if !envs
             .iter()
@@ -34,6 +39,8 @@ impl MainState {
         {
             self.selected_env = envs.first().unwrap().clone();
         }
+
+        self.prompt_ssh_cert = Some(model.ssh_cert_prompt);
 
         self.envs = Some(envs);
     }
