@@ -1,0 +1,129 @@
+body {
+    --panel-height: 37px;
+    --app-width: 100vw;
+    --app-height: 100vh;
+}
+
+#top-panel {
+    position: absolute;
+    top: 0;
+    width: var(--app-width);
+    height: var(--panel-height);
+    left: 0;
+    z-index: 10;
+    box-shadow: 0 0 5px #00000030;
+}
+
+
+#main-panel {
+    position: absolute;
+    width: var(--app-width);
+    height: calc(var(--app-height) - var(--panel-height));
+    top: var(--panel-height);
+    left: var(--panel-width);
+    background-color: white;
+    overflow-y: auto;
+}
+
+.menu {
+    color: white;
+    padding: 10px;
+}
+
+.menu-item {
+    color: white;
+    padding-left: 20px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.menu-item-active {
+    border: 1px solid white;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+
+.red-ball {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: red !important;
+    border-radius: 50%;
+    padding: 0 !important;
+    margin: 0;
+    margin-left: 5px !important;
+}
+
+.dark-red-ball {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: darkred !important;
+    border-radius: 50%;
+    padding: 0 !important;
+    margin: 0;
+    margin-left: 5px !important;
+}
+
+.orange-ball {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: orange !important;
+    border-radius: 50%;
+    padding: 0 !important;
+    margin: 0;
+    margin-left: 5px !important;
+
+}
+
+.green-ball {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: green !important;
+    border-radius: 50%;
+    padding: 0 !important;
+    margin: 0;
+    margin-left: 5px !important;
+}
+
+.yellow-ball {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: yellow !important;
+    border-radius: 50%;
+    padding: 0 !important;
+    margin: 0;
+    margin-left: 5px !important;
+}
+
+.gray-ball {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: gray !important;
+    border-radius: 50%;
+    padding: 0 !important;
+    margin: 0;
+    margin-left: 5px !important;
+}
+
+.form-control {
+    border-radius: 0 5px 5px 0;
+    border: 1px solid lightgray;
+}
+
+#dialog-pad {
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    width: var(--app-width);
+    height: var(--app-height);
+
+    background-color: #ffffffeb;
+    z-index: 1000;
+}
