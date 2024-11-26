@@ -20,15 +20,20 @@ jobs:
           ver=${GITHUB_REF_NAME}
           echo $ver
           sed -i -e 's/^version = .*/version = "'$ver'"/' Cargo.toml
+          
 
-      - run: dx build --platform fullstack --release
+      - name: Build the app        
+        run: |
+          export GIT_HUB_TOKEN=${{ secrets.PUBLISH_TOKEN }}
+          dx build --platform fullstack --release
+          python3 build.py ./dist/index.html
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts
           path: |
-            ./target/release/my-logger-ui   
+            ./target/release/versions-control-ui 
             ./dist 
             ./Dockerfile
 
