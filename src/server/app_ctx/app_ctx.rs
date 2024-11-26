@@ -3,21 +3,49 @@ use flurl::FlUrl;
 use my_settings_reader::SettingsReader;
 use tokio::sync::Mutex;
 
-pub struct SshCertificate {
-    pub private_key: String,
-    pub pass_phrase: String,
-}
+use super::{CertData, SshPrivateKeyCache};
 
 pub struct AppContext {
     pub settings_reader: SettingsReader<SettingsModel>,
-    pub cert: Mutex<Option<SshCertificate>>,
+    pub ssh_private_key: Mutex<Option<SshPrivateKeyCache>>,
 }
 
 impl AppContext {
     pub fn new() -> Self {
         Self {
             settings_reader: SettingsReader::new("~/.versions-control-ui"),
-            cert: Mutex::new(None),
+            ssh_private_key: Mutex::new(None),
+        }
+    }
+
+    pub async fn post_ssh_pass_phrase(&self, pass_phrase: Option<String>) {
+        let mut ssh_private_key = self.ssh_private_key.lock().await;
+
+        if let Some(ssh_private_key) = &mut *ssh_private_key {
+            ssh_private_key.set_ssh_pass_phrase(pass_phrase);
+            return;
+        }
+
+        let path = self
+            .settings_reader
+            .get(|settings| settings.ssh_private_key_path.clone())
+            .await;
+        *ssh_private_key = Some(SshPrivateKeyCache::new(path, pass_phrase).await);
+    }
+
+    async fn get_ssh_private_key(&self) -> Option<CertData> {
+        let mut ssh_private_key = self.ssh_private_key.lock().await;
+
+        loop {
+            if let Some(ssh_private_key) = &*ssh_private_key {
+                return ssh_private_key.get_cert_data();
+            }
+
+            let path = self
+                .settings_reader
+                .get(|settings| settings.ssh_private_key_path.clone())
+                .await;
+            *ssh_private_key = Some(SshPrivateKeyCache::new(path, None).await);
         }
     }
 
@@ -41,17 +69,9 @@ impl AppContext {
         let fl_url = FlUrl::new(url);
 
         if fl_url.via_ssh() {
-            let ssh_key_access = self.cert.lock().await;
-
-            if let Some(ssh_key) = ssh_key_access.as_ref() {
-                let pass_phrase = if ssh_key.pass_phrase.is_empty() {
-                    None
-                } else {
-                    Some(ssh_key.pass_phrase.clone())
-                };
-
+            if let Some(cert_data) = self.get_ssh_private_key().await {
                 return (
-                    fl_url.set_ssh_private_key(ssh_key.private_key.clone(), pass_phrase),
+                    fl_url.set_ssh_private_key(cert_data.private_key, cert_data.pass_phrase),
                     host,
                 );
             }

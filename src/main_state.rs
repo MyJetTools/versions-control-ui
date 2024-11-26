@@ -7,7 +7,7 @@ use crate::models::{AppVersionsHttpModel, GetEnvsModel};
 pub struct MainState {
     pub selected_env: Rc<String>,
     pub envs: Option<Vec<Rc<String>>>,
-    pub prompt_ssh_cert: Option<bool>,
+    pub ssh_pass_key_promt: bool,
     pub data: DataState<AppVersionsHttpModel>,
 }
 
@@ -18,7 +18,7 @@ impl MainState {
             selected_env: Rc::new(selected_env),
             envs: None,
             data: DataState::new(),
-            prompt_ssh_cert: None,
+            ssh_pass_key_promt: false,
         }
     }
 
@@ -40,7 +40,7 @@ impl MainState {
             self.selected_env = envs.first().unwrap().clone();
         }
 
-        self.prompt_ssh_cert = Some(model.ssh_cert_prompt);
+        self.ssh_pass_key_promt = model.ssh_pass_key_promt;
 
         self.envs = Some(envs);
     }

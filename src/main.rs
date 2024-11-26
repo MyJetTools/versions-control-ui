@@ -77,12 +77,10 @@ fn ActiveApp() -> Element {
 
     let main_state_read_access = main_state.read();
 
-    if let Some(ssh_cert_prompt) = main_state_read_access.prompt_ssh_cert {
-        if ssh_cert_prompt {
-            return rsx! {
-                EnterCert {}
-            };
-        }
+    if main_state_read_access.ssh_pass_key_promt {
+        return rsx! {
+            EnterCert {}
+        };
     }
 
     rsx! {
@@ -100,6 +98,6 @@ pub async fn get_envs() -> Result<GetEnvsModel, ServerFnError> {
 
     Ok(GetEnvsModel {
         envs: result.envs.keys().cloned().collect(),
-        ssh_cert_prompt: result.ssh_cert_prompt,
+        ssh_pass_key_promt: result.ssh_pass_key_promt.unwrap_or(false),
     })
 }
